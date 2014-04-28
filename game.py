@@ -1,9 +1,9 @@
 import curses
-import curses.ascii as ascii
 import time
 import random
 import argparse
 import math
+import csv
 
 # Read the list of words and choose N of them
 
@@ -13,8 +13,18 @@ import math
 #         "did", "my", "up", "had", "it", "said", "get", "who", "what", "when",
 #         "where", "why", "this", "that", "there"]
 
-with open("./words.txt") as f:
-  words = [line.strip() for line in f.readlines()]
+streaks  = dict()
+selected = dict()
+words = []
+with open("./words.txt", "rb") as f:
+  for row in csv.reader(f, delimiter='\t'):
+    if len(row) > 0:
+      selected[row[0]] = False
+      words.append(row[0])
+      if len(row) == 1:
+        streaks[row[0]] = 0
+      else:
+        streaks[row[0]] = int(row[1])
 
 # words = ["Rosa $yells, \"QUIET!\"", "hello"]
 
@@ -59,7 +69,30 @@ def main_application(stdscr, word_count):
 
   # choose word_count words from the word list as our operating list
   word_count = min(word_count, len(words))
-  new_words = set(random.sample(words, word_count))
+
+  new_words = set()
+
+  random.shuffle(words) # not sure if this matters
+
+  # grab a weigted random sample where smaller streaks are favored
+  streak_sum = sum([100 / min(x + 1, 100) for x in streaks.values()])
+  for _ in range(word_count):
+    random_hit = False
+    while not random_hit:
+      random_choice = random.randint(1, streak_sum)
+      word_iter = iter(words)
+      cword = ""
+      while random_choice > 0:
+        cword = word_iter.next()
+        random_choice = random_choice - (100 / min(streaks[cword] + 1, 100))
+      if not selected[cword]:
+        selected[cword] = True
+        new_words.add(cword)
+        random_hit = True
+
+
+
+
 
   # create default buckets
   wordlist = []
@@ -132,7 +165,7 @@ def main_application(stdscr, word_count):
     draw_word(
       mainwin, 
       mainwin_middle, 
-      current_word, 
+      current_word + " " + str(streaks[current_word]), 
       word_colors[current_list])
     
     draw_toolbar(toolbar, [len(x) for x in wordlist])
@@ -170,6 +203,7 @@ def main_application(stdscr, word_count):
         finished     = True
         if inputkey == ord("1"): # missed always go to missed
           wordlist[1].add(current_word) 
+          streaks[current_word] = 0 # reset score
         elif current_list == 1: # missed cards can only go to a working at best
           wordlist[2].add(current_word)
         else: # working cards can go up to mastered
@@ -177,6 +211,7 @@ def main_application(stdscr, word_count):
             wordlist[2].add(current_word) # back to working
           else:
             wordlist[3].add(current_word) # up to mastered
+            streaks[current_word] = streaks[current_word] + 1 # increase score
 
 
     #####
@@ -193,6 +228,13 @@ def main_application(stdscr, word_count):
         current_list = next_list
         working_list = list(wordlist[current_list])
         random.shuffle(working_list)
+
+  ### WRITE WORDS.TXT BACK WITH UPDATED STREAKS
+
+  with open("words.txt", "wb") as f:
+    writer = csv.writer(f, delimiter='\t')
+    for key in sorted(streaks.keys()):
+      writer.writerow([key, streaks[key]])
 
   ### DISPLAY VICTORY SCREEN
 
