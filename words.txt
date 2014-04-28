@@ -1,0 +1,75 @@
+am
+and
+as
+at
+can
+dad
+damage
+did
+do
+get
+go
+had
+he
+here
+I
+if
+in
+is
+it
+like
+look
+love
+me
+mom
+my
+no
+not
+on
+or
+said
+see
+she
+that
+the
+there
+this
+to
+up
+us
+was
+we
+what
+when
+where
+who
+why
+yes
+you
+Motors $hum$.
+$Clocks$ tick.
+Brooms $sweep$.
+Cats $purr$.
+Balls $bounce$.
+$Motors$ hum.
+$Brooms$ sweep.
+Curtains $swish$.
+Clocks $tick$.
+$Spoons$ stir.
+$Lids$ crash.
+Rosa $whispers$, "I love to read!"
+$Horns$ honk.
+$Hands$ clap.
+$Mice$ squeak.
+$Curtains$ swish.
+$Doors$ slam.
+Toes $tiptoe$.
+$Toes$ tiptoe.
+Spoons $stir$.
+$Cats$ purr.
+Lids $crash$.
+Hands $clap$.
+Rosa $yells$, "QUIET!"
+Mice $squeak$.
+Rosa $turns$ the page.
+Dogs $bark$.
