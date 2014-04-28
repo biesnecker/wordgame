@@ -16,3 +16,6 @@ words.txt in this repository for examples.
 
 It's silly and there's a lot more to do to make it anything more than silly, but
 my son loves it and his reading has improved tremendously, so I'm happy with it.
+
+I've released the code into the Public Domain (see COPYING.txt for details), and
+hope that others will find it useful.
