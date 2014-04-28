@@ -73,3 +73,9 @@ Rosa $yells$, "QUIET!"
 Mice $squeak$.
 Rosa $turns$ the page.
 Dogs $bark$.
+hand
+hands
+toe
+toes
+mice
+mouse
