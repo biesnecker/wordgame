@@ -165,7 +165,7 @@ def main_application(stdscr, word_count):
     draw_word(
       mainwin, 
       mainwin_middle, 
-      current_word + " " + str(streaks[current_word]), 
+      current_word, 
       word_colors[current_list])
     
     draw_toolbar(toolbar, [len(x) for x in wordlist])
