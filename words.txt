@@ -171,3 +171,17 @@ wing	0
 yellow	1
 yes	0
 you	0
+ladybug
+life
+These are $ladybug$ eggs.
+hatch
+This is a $ladybug$ larva.
+This is a ladybug $larva$.
+larva
+pupa
+This is a ladybug $pupa$.
+heavy
+heaviest
+lightest
+box
+draw
