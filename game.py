@@ -233,7 +233,9 @@ def main_application(stdscr, word_count):
 
   with open("words.txt", "wb") as f:
     writer = csv.writer(f, delimiter='\t')
-    for key in sorted(streaks.keys()):
+    for key in sorted(
+      streaks.keys(), 
+      key=lambda x: (streaks[x] * -1, x.lower())):
       writer.writerow([key, streaks[key]])
 
   ### DISPLAY VICTORY SCREEN
