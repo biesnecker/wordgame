@@ -4,6 +4,7 @@ import random
 import argparse
 import math
 import csv
+from collections import defaultdict
 
 # Read the list of words and choose N of them
 
@@ -13,18 +14,18 @@ import csv
 #         "did", "my", "up", "had", "it", "said", "get", "who", "what", "when",
 #         "where", "why", "this", "that", "there"]
 
-streaks  = dict()
-selected = dict()
+streaks  = defaultdict(int)
+selected = defaultdict(bool)
+weights  = defaultdict(int)
 words = []
 with open("./words.txt", "rb") as f:
   for row in csv.reader(f, delimiter='\t'):
     if len(row) > 0:
       selected[row[0]] = False
       words.append(row[0])
-      if len(row) == 1:
-        streaks[row[0]] = 0
-      else:
-        streaks[row[0]] = int(row[1])
+      if len(row) > 1:
+        streaks[row[0]] += int(row[1])
+      weights[row[0]] = 100 / max(streaks[row[0]] + 1, 100)
 
 # words = ["Rosa $yells, \"QUIET!\"", "hello"]
 
@@ -75,20 +76,18 @@ def main_application(stdscr, word_count):
   random.shuffle(words) # not sure if this matters
 
   # grab a weigted random sample where smaller streaks are favored
-  streak_sum = sum([100 / min(x + 1, 100) for x in streaks.values()])
+  total_weight = sum(weights.values())
   for _ in range(word_count):
-    random_hit = False
-    while not random_hit:
-      random_choice = random.randint(1, streak_sum)
-      word_iter = iter(words)
-      cword = ""
-      while random_choice > 0:
-        cword = word_iter.next()
-        random_choice = random_choice - (100 / min(streaks[cword] + 1, 100))
-      if not selected[cword]:
-        selected[cword] = True
-        new_words.add(cword)
-        random_hit = True
+    random_choice = random.randint(1, total_weight)
+    word_iter = iter(sorted(weights.items(), key=lambda x: x[1]))
+    cword = ""
+    while random_choice > 0:
+      (cword, cweight) = word_iter.next()
+      random_choice -= cweight
+    selected[cword] = True
+    new_words.add(cword)
+    del(weights[cword])
+    total_weight -= cweight
 
 
 
