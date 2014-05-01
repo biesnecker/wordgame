@@ -176,15 +176,15 @@ def main_application(stdscr, word_count):
       if (time_diff_temp is not time_diff):
         # new second
         time_diff = time_diff_temp
-        if time_diff < 5:
+        if time_diff < 10 and time_diff % 2 == 0:
           # add tickers
           mainwin.addstr(
             mainwin_middle,
-            time_diff,
+            time_diff / 2,
             ":",
-            curses.color_pair(bullet_colors[time_diff]) | curses.A_BOLD)
+            curses.color_pair(bullet_colors[time_diff / 2]) | curses.A_BOLD)
           mainwin.refresh()
-        elif time_diff == 5:
+        elif time_diff == 10:
           draw_word(
             mainwin,
             mainwin_middle,
