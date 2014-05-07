@@ -8,12 +8,6 @@ from collections import defaultdict
 
 # Read the list of words and choose N of them
 
-#words = ["I", "mom", "or", "can", "on", "as", "like", "do", "am", "to", "look",
-#         "he", "go", "in", "she", "see", "yes", "if", "at", "love", "us", "the", 
-#         "dad", "not", "is", "you", "here", "me", "and", "was", "no", "we", 
-#         "did", "my", "up", "had", "it", "said", "get", "who", "what", "when",
-#         "where", "why", "this", "that", "there"]
-
 streaks  = defaultdict(int)
 selected = defaultdict(bool)
 weights  = defaultdict(int)
@@ -27,7 +21,6 @@ with open("./words.txt", "rb") as f:
         streaks[row[0]] += int(row[1])
       weights[row[0]] = 100 / max(streaks[row[0]] + 1, 100)
 
-# words = ["Rosa $yells, \"QUIET!\"", "hello"]
 
 def draw_word(window, y, word, color, reversed=False):
   color = curses.color_pair(color) | curses.A_BOLD
@@ -48,9 +41,9 @@ def draw_word(window, y, word, color, reversed=False):
 
   else: # just a normal word
     window.addstr(
-      y, 
-      6, 
-      word, 
+      y,
+      6,
+      word,
       color)
 
   window.clrtoeol()
@@ -66,7 +59,7 @@ def draw_toolbar(toolbar, vals):
   toolbar.clrtoeol()
   toolbar.refresh()
 
-def main_application(stdscr, word_count):
+def main_application(stdscr, word_count, is_testing):
 
   # choose word_count words from the word list as our operating list
   word_count = min(word_count, len(words))
@@ -112,7 +105,7 @@ def main_application(stdscr, word_count):
   win_dim = stdscr.getmaxyx()
   stdscr.nodelay(1)
   curses.curs_set(0)
-  
+
   toolbar = stdscr.subwin(1, win_dim[1], win_dim[0] - 1, 0)
   mainwin = stdscr.subwin(win_dim[0] - 1, win_dim[1], 0, 0)
 
@@ -162,12 +155,13 @@ def main_application(stdscr, word_count):
     time_start = time.time()
     time_diff  = -1
     draw_word(
-      mainwin, 
-      mainwin_middle, 
-      current_word, 
+      mainwin,
+      mainwin_middle,
+      current_word,
       word_colors[current_list])
-    
+
     draw_toolbar(toolbar, [len(x) for x in wordlist])
+    out_of_time = False
 
 
     while not finished:
@@ -185,13 +179,14 @@ def main_application(stdscr, word_count):
             curses.color_pair(bullet_colors[time_diff / 2]) | curses.A_BOLD)
           mainwin.refresh()
         elif time_diff == 10:
+          out_of_time = True
           draw_word(
             mainwin,
             mainwin_middle,
             current_word,
             word_colors[current_list],
             True)
-      
+
       inputkey = stdscr.getch()
       if inputkey == ord('q'):
         all_mastered = True
@@ -201,12 +196,12 @@ def main_application(stdscr, word_count):
         wordlist[current_list].remove(current_word)
         finished     = True
         if inputkey == ord("1"): # missed always go to missed
-          wordlist[1].add(current_word) 
+          wordlist[1].add(current_word)
           streaks[current_word] = 0 # reset score
         elif current_list == 1: # missed cards can only go to a working at best
           wordlist[2].add(current_word)
         else: # working cards can go up to mastered
-          if inputkey == ord("2"):
+          if inputkey == ord("2") or out_of_time:
             wordlist[2].add(current_word) # back to working
           else:
             wordlist[3].add(current_word) # up to mastered
@@ -230,12 +225,13 @@ def main_application(stdscr, word_count):
 
   ### WRITE WORDS.TXT BACK WITH UPDATED STREAKS
 
-  with open("words.txt", "wb") as f:
-    writer = csv.writer(f, delimiter='\t')
-    for key in sorted(
-      streaks.keys(), 
-      key=lambda x: (streaks[x] * -1, x.lower())):
-      writer.writerow([key, streaks[key]])
+  if not is_testing:
+    with open("words.txt", "wb") as f:
+      writer = csv.writer(f, delimiter='\t')
+      for key in sorted(
+        streaks.keys(),
+        key=lambda x: (streaks[x] * -1, x.lower())):
+        writer.writerow([key, streaks[key]])
 
   ### DISPLAY VICTORY SCREEN
 
@@ -260,14 +256,14 @@ def main_application(stdscr, word_count):
 
     stdscr.nodelay(0) # wait for key input
     stdscr.getch()
-        
 
 
 
 
 
-def bootstrap(word_count):
-  curses.wrapper(main_application, word_count)
+
+def bootstrap(word_count, testing):
+  curses.wrapper(main_application, word_count, testing)
 
 
 
@@ -280,6 +276,8 @@ if __name__ == "__main__":
     metavar="n",
     type=int,
     help="Number of words to test")
+  parser.add_argument('--test', action='store_true')
+
   args = parser.parse_args()
 
-  bootstrap(args.word_count)
+  bootstrap(args.word_count, args.test)
